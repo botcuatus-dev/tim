@@ -193,6 +193,20 @@
     </div>
 
     <script>
+        function playMusicOnUserInteraction() {
+        const music = document.getElementById('bg-music');
+        music.play().then(() => {
+            // Sau khi phát thành công thì gỡ sự kiện đi
+            document.removeEventListener('click', playMusicOnUserInteraction);
+            document.removeEventListener('touchstart', playMusicOnUserInteraction);
+        }).catch(err => {
+            console.log("Trình duyệt chặn phát tự động:", err);
+        });
+    }
+
+    // Lắng nghe sự kiện click chuột hoặc chạm tay vào màn hình điện thoại
+        document.addEventListener('click', playMusicOnUserInteraction);
+        document.addEventListener('touchstart', playMusicOnUserInteraction);
         const ui = document.getElementById("ui");
         const totalItems = 80; // Số lượng phần tử chữ 'I love you'
         let isRotating = true;
