@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I Love You - 3D Heart Effect</title>
+    <title>I Love You - 3D Heart Orbit Effect</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,7 +27,7 @@
             perspective: 1000px;
         }
 
-        /* Phông nền sao lấp lánh nhẹ nhàng */
+        /* Phông nền sao lấp lánh */
         .stars {
             position: fixed;
             top: 0;
@@ -45,9 +45,14 @@
             width: 0;
             height: 0;
             transform-style: preserve-3d;
-            animation: rotateWorld 20s infinite linear;
+            /* ĐÃ SỬA: Tăng từ 25s lên 50s để quay toàn bộ khối 3D chậm lại */
+            animation: rotateWorld 50s infinite linear;
             z-index: 1;
-            cursor: pointer;
+            cursor: grab;
+        }
+
+        .ui:active {
+            cursor: grabbing;
         }
 
         @keyframes rotateWorld {
@@ -59,28 +64,13 @@
             }
         }
 
-        /* Cấu trúc phần tử love từ đoạn mã JavaScript */
+        /* Cấu trúc các thẻ chữ */
         .love {
             position: absolute;
             top: 0;
             left: 0;
             transform-style: preserve-3d;
-            /* Tính toán tọa độ toán học hình trái tim 3D dựa vào biến --i */
-            transform: 
-                rotateY(calc(var(--i) * (360deg / var(--total-items))))
-                translateZ(calc(120px * sin(calc(var(--i) * (360deg / var(--total-items))))))
-                translateY(calc(-120px * cos(calc(var(--i) * (360deg / var(--total-items))))));
-        }
-
-        /* Tối ưu toán học CSS cho hình trái tim Parametric Equation */
-        .love_horizontal {
-            transform-style: preserve-3d;
-            animation: floatPulse 3s ease-in-out infinite alternate;
-            animation-delay: calc(var(--i) * -0.05s);
-        }
-
-        .love_vertical {
-            transform-style: preserve-3d;
+            will-change: transform;
         }
 
         .love_word {
@@ -95,61 +85,11 @@
                 0 0 20px #ff0055,
                 0 0 40px #ff0055;
             user-select: none;
-            transition: all 0.3s ease;
             backface-visibility: visible;
+            transform: translate(-50%, -50%);
         }
 
-        /* Nhịp đập trái tim */
-        @keyframes floatPulse {
-            0% {
-                transform: scale(1) translate(0, 0);
-            }
-            100% {
-                transform: scale(1.15) translate(0, -10px);
-            }
-        }
-
-        /* UI Control Panel */
-        .controls {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            display: flex;
-            gap: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            padding: 12px 24px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .btn {
-            background: linear-gradient(45deg, #ff0055, #ff5088);
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 600;
-            border-radius: 20px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 0, 85, 0.4);
-            transition: all 0.3s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 6px 20px rgba(255, 0, 85, 0.7);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        /* Tiêu đề hướng dẫn */
+        /* Tiêu đề */
         .title {
             position: fixed;
             top: 40px;
@@ -158,7 +98,7 @@
             color: #ffffff;
             font-size: 2rem;
             text-align: center;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px #ff0055;
             z-index: 10;
             pointer-events: none;
             letter-spacing: 2px;
@@ -177,108 +117,100 @@
 </head>
 <body>
     <audio id="bg-music" loop src="iloveyou3000.mp3"></audio>
+    
     <!-- BACKGROUND -->
     <div class="stars"></div>
 
     <!-- TITLE -->
-    <div class="title">I Love You 3000 ❤️️</div>
+    <div class="title">I Love You 3000 ❤</div>
 
     <!-- MAIN UI CONTAINER -->
     <div class="ui" id="ui"></div>
 
-    <!-- CONTROLS -->
-    <div class="controls">
-        <button class="btn" onclick="toggleRotation()">Tạm dừng / Quay</button>
-        <button class="btn" onclick="explodeHeart()">Bùng nổ ❤️️</button>
-    </div>
-
     <script>
+        // Tự động phát nhạc khi người dùng tương tác
         function playMusicOnUserInteraction() {
-        const music = document.getElementById('bg-music');
-        music.play().then(() => {
-            // Sau khi phát thành công thì gỡ sự kiện đi
-            document.removeEventListener('click', playMusicOnUserInteraction);
-            document.removeEventListener('touchstart', playMusicOnUserInteraction);
-        }).catch(err => {
-            console.log("Trình duyệt chặn phát tự động:", err);
-        });
-    }
-
-    // Lắng nghe sự kiện click chuột hoặc chạm tay vào màn hình điện thoại
-        document.addEventListener('click', playMusicOnUserInteraction);
-        document.addEventListener('touchstart', playMusicOnUserInteraction);
-        const ui = document.getElementById("ui");
-        const totalItems = 80; // Số lượng phần tử chữ 'I love you'
-        let isRotating = true;
-
-        // Truyền tổng số items vào CSS variables
-        document.documentElement.style.setProperty('--total-items', totalItems);
-
-        // Vòng lặp từ ảnh của bạn
-        for (let i = 1; i <= totalItems; i++) {
-            const love = document.createElement("div");
-            love.className = "love";
-            love.style.setProperty("--i", i);
-            
-            // Công thức hình trái tim 3D (Parametric Heart)
-            const t = (i / totalItems) * Math.PI * 2;
-            // x = 16 sin^3(t)
-            const x = 16 * Math.pow(Math.sin(t), 3);
-            // y = 13 cos(t) - 5 cos(2t) - 2 cos(3t) - cos(4t)
-            const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
-            
-            // Quy đổi tỉ lệ kích thước cho màn hình
-            const scale = 14; 
-            const posX = x * scale;
-            const posY = y * scale;
-            const rotY = (i / totalItems) * 360;
-
-            // Đặt vị trí tạo hình trái tim 3D
-            love.style.transform = `translate3d(${posX}px, ${posY}px, ${Math.sin(t) * 80}px) rotateY(${rotY}deg)`;
-
-            love.innerHTML = `
-                <div class="love_horizontal">
-                    <div class="love_vertical">
-                        <div class="love_word">I love you</div>
-                    </div>
-                </div>
-            `;
-            
-            ui.appendChild(love);
-        }
-
-        // Bật / Tắt xoay trái tim
-        function toggleRotation() {
-            isRotating = !isRotating;
-            ui.style.animationPlayState = isRotating ? 'running' : 'paused';
-        }
-
-        // Hiệu ứng phóng to bùng nổ khi bấm nút
-        function explodeHeart() {
-            const words = document.querySelectorAll('.love_word');
-            words.forEach((word, index) => {
-                setTimeout(() => {
-                    word.style.transform = 'scale(2) translateZ(50px)';
-                    word.style.color = '#fff';
-                    word.style.textShadow = '0 0 20px #fff, 0 0 30px #ff0055, 0 0 50px #ff0055';
-                    
-                    setTimeout(() => {
-                        word.style.transform = 'scale(1) translateZ(0)';
-                        word.style.color = '#ff2a75';
-                        word.style.textShadow = '0 0 5px #ff2a75, 0 0 10px #ff2a75, 0 0 20px #ff0055, 0 0 40px #ff0055';
-                    }, 600);
-                }, (index % 10) * 30);
+            const music = document.getElementById('bg-music');
+            music.play().then(() => {
+                document.removeEventListener('click', playMusicOnUserInteraction);
+                document.removeEventListener('touchstart', playMusicOnUserInteraction);
+            }).catch(err => {
+                console.log("Trình duyệt chặn phát tự động nhạc:", err);
             });
         }
 
-        // Tương tác xoay theo con trỏ chuột khi di chuyển trên màn hình
+        document.addEventListener('click', playMusicOnUserInteraction);
+        document.addEventListener('touchstart', playMusicOnUserInteraction);
+
+        const ui = document.getElementById("ui");
+        const totalItems = 60; // Số lượng dòng chữ "I love you" trên quỹ đạo
+        const elements = [];
+        const scale = 14;      // Kích thước hình trái tim
+        
+        /* ĐÃ SỬA: Giảm tốc độ chạy của chữ theo quỹ đạo xuống 0.0008 (chậm nhẹ nhàng) */
+        const speed = 0.0008;   
+        let globalOffset = 0;
+
+        // Tạo các phần tử chữ
+        for (let i = 0; i < totalItems; i++) {
+            const love = document.createElement("div");
+            love.className = "love";
+            
+            const word = document.createElement("div");
+            word.className = "love_word";
+            word.textContent = "I love you";
+            
+            love.appendChild(word);
+            ui.appendChild(love);
+            
+            elements.push({
+                element: love,
+                baseProgress: i / totalItems
+            });
+        }
+
+        // Hàm tính toán vị trí theo phương trình tham số trái tim 3D
+        function getHeartPoint(t) {
+            const angle = t * Math.PI * 2;
+            // Công thức trái tim toán học
+            const x = 16 * Math.pow(Math.sin(angle), 3);
+            const y = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
+            const z = Math.sin(angle) * 80;
+            
+            return {
+                x: x * scale,
+                y: y * scale,
+                z: z
+            };
+        }
+
+        // Vòng lặp Animation liên tục di chuyển chữ theo quỹ đạo trái tim
+        function animate() {
+            globalOffset += speed;
+            if (globalOffset >= 1) globalOffset -= 1;
+
+            elements.forEach((item) => {
+                let currentProgress = (item.baseProgress + globalOffset) % 1;
+                let pt = getHeartPoint(currentProgress);
+                
+                // Góc xoay nhẹ tạo hiệu ứng 3D
+                let rotY = currentProgress * 360;
+                
+                item.element.style.transform = `translate3d(${pt.x}px, ${pt.y}px, ${pt.z}px) rotateY(${rotY}deg)`;
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Tương tác xoay hình 3D bằng chuột / cảm ứng
         let isMouseDown = false;
         let startX, startY;
         let currentRotX = -10;
         let currentRotY = 0;
 
         window.addEventListener('mousedown', (e) => {
-            if (e.target.tagName === 'BUTTON') return;
             isMouseDown = true;
             startX = e.clientX;
             startY = e.clientY;
@@ -302,9 +234,40 @@
         window.addEventListener('mouseup', () => {
             if (isMouseDown) {
                 isMouseDown = false;
-                if (isRotating) {
-                    ui.style.animation = 'rotateWorld 20s infinite linear';
-                }
+                /* ĐÃ SỬA: Đảm bảo thời gian giữ nguyên 50s sau khi thả chuột */
+                ui.style.animation = 'rotateWorld 50s infinite linear';
+            }
+        });
+
+        // Hỗ trợ sự kiện Vuốt màn hình điện thoại
+        window.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isMouseDown = true;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                ui.style.animation = 'none';
+            }
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isMouseDown || e.touches.length !== 1) return;
+            const deltaX = e.touches[0].clientX - startX;
+            const deltaY = e.touches[0].clientY - startY;
+
+            currentRotY += deltaX * 0.5;
+            currentRotX -= deltaY * 0.5;
+
+            ui.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
+
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+
+        window.addEventListener('touchend', () => {
+            if (isMouseDown) {
+                isMouseDown = false;
+                /* ĐÃ SỬA: Đảm bảo thời gian giữ nguyên 50s sau khi thả cảm ứng */
+                ui.style.animation = 'rotateWorld 50s infinite linear';
             }
         });
     </script>
